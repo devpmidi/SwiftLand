@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Guess the Song - Taylor Swift</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f0f0f0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .container {
+      text-align: center;
+      background-color: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    h1 {
+      color: #634829;
+    }
+
+    .song-guess {
+      margin: 20px 0;
+    }
+
+    input {
+      padding: 10px;
+      font-size: 16px;
+      margin-right: 10px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #634829;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #634829;
+    }
+
+    #result {
+      margin-top: 20px;
+      font-size: 18px;
+      color: #db9f5b;
+    }
+
+    /* Estilo para o álbum */
+    #customAlbumCover {
+      width: 250px; /* Defina um tamanho fixo */
+      height: 250px;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      border-radius: 10px;
+      display: none; /* Esconde a div até que a dica seja ativada */
+      margin-top: 20px; /* Adiciona um pequeno espaço entre a imagem e o texto */
+    }
+
+    #albumLink {
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Guess the Song</h1>
+    <p>Qual é a música da Taylor Swift?</p>
+    <div class="song-guess">
+      <p id="song-lyrics">Aqui aparecerá o trecho da música...</p>
+    </div>
+    <input type="text" id="user-input" placeholder="Digite sua resposta" />
+    <button id="check-btn">Verificar</button>
+    <p id="result"></p>
+
+    <!-- Div para mostrar a capa personalizada do álbum -->
+    <div id="customAlbumCover"></div>
+    <p id="albumLink"></p>
+    <button id="hint-btn">Dica</button>
+  </div>
+
+  <script>
+    // Lista de músicas e trechos
+    const songs = [
+        { title: "Love Story", lyrics: "We were both young when I first saw you...", albumCover: "https://lastfm.freetls.fastly.net/i/u/770x0/1aaa3638ee0bfee0ba8089c78ad63b26", album: "Fearless (Taylor's Version)" },
+        { title: "Shake It Off", lyrics: "And the players gonna play, play, play, play, play...", albumCover: "https://lastfm.freetls.fastly.net/i/u/770x0/f58d29605321bc6e1ee4da6ae5a0cb4a", album: "1989 (Taylor's Version)" },
+        { title: "You Belong With Me", lyrics: "If you could see that I'm the one who understands you...", albumCover: "https://lastfm.freetls.fastly.net/i/u/770x0/1aaa3638ee0bfee0ba8089c78ad63b26", album: "Fearless (Taylor's Version)" },
+        { title: "Blank Space", lyrics: "Got a long list of ex-lovers, they'll tell you I'm insane...", albumCover: "https://lastfm.freetls.fastly.net/i/u/770x0/f58d29605321bc6e1ee4da6ae5a0cb4a", album: "1989 (Taylor's Version)" },
+        { title: "Bad Blood", lyrics: "'Cause baby now we got bad blood...", albumCover: "https://lastfm.freetls.fastly.net/i/u/770x0/f58d29605321bc6e1ee4da6ae5a0cb4a", album: "1989 (Taylor's Version)" },
+        { title: "All Too Well", lyrics: "You call me up again just to break me like a promise...", albumCover: "https://lastfm.freetls.fastly.net/i/u/770x0/b0962b3df3e930c581bc69618d6c3281", album: "Red (Taylor's Version)" },
+        { title: "Delicate", lyrics: "This ain't for the best, my reputation's never been worse, so...", albumCover: "https://lastfm.freetls.fastly.net/i/u/770x0/dddb96a470fecc69d281f45c81a44d2a", album: "Reputation" },
+        { title: "Red", lyrics: "Loving him is like driving a new Maserati down a dead-end street...", albumCover: "https://lastfm.freetls.fastly.net/i/u/770x0/b0962b3df3e930c581bc69618d6c3281", album: "Red (Taylor's Version)" },
+        { title: "Tim McGraw", lyrics: "He said the way my blue eyes shined...", albumCover: "https://lastfm.freetls.fastly.net/i/u/770x0/bd60a56598a54a56b833e082e55326ae", album: "Taylor Swift" },
+        { title: "Teardrops on My Guitar", lyrics: "Drew looks at me, I fake a smile so he won't see...", albumCover: "https://lastfm.freetls.fastly.net/i/u/770x0/bd60a56598a54a56b833e082e55326ae", album: "Taylor Swift" },
+        { title: "Enchanted", lyrics: "This night is sparkling, don't you let it go...", albumCover: "https://lastfm.freetls.fastly.net/i/u/770x0/caa5a586b599869e10542593928b5fdf", album: "Speak Now (Taylor's Version)" },
+        { title: "The Archer", lyrics: "I've been the archer, I've been the prey...", albumCover: "https://lastfm.freetls.fastly.net/i/u/770x0/d3f083370c371a3ba1cddafaf193c27d", album: "Lover" },
+        { title: "Cruel Summer", lyrics: "Fever dream high in the quiet of the night...", albumCover: "https://lastfm.freetls.fastly.net/i/u/770x0/d3f083370c371a3ba1cddafaf193c27d", album: "Lover" },
+        { title: "Cardigan", lyrics: "And when I felt like I was an old cardigan under someone's bed...", albumCover: "https://lastfm.freetls.fastly.net/i/u/770x0/b8da93ab6d8aa00384998fdae7451d92", album: "Folklore" },
+        { title: "Willow", lyrics: "Life was a willow and it bent right to your wind...", albumCover: "https://lastfm.freetls.fastly.net/i/u/770x0/8a2ec55d33a1443fa8993cfb25f30c6c", album: "Evermore" },
+        { title: "Bejeweled", lyrics: "Best believe I'm still bejeweled when I walk in the room...", albumCover: "https://lastfm.freetls.fastly.net/i/u/770x0/f9c5d3bbd4c34b8e988f5efb42d0e6fa", album: "Midnights" }
+    ];
+
+    // Função para selecionar uma música aleatória e exibir o trecho
+    function setSong() {
+      const randomSong = songs[Math.floor(Math.random() * songs.length)];
+      document.getElementById('song-lyrics').textContent = `Trecho: "${randomSong.lyrics}"`;
+      return randomSong; // Retorna o objeto com as informações da música
+    }
+
+    // Função para verificar a resposta do usuário
+    const checkButton = document.getElementById('check-btn');
+    const userInput = document.getElementById('user-input');
+    const result = document.getElementById('result');
+    let currentSong = setSong();
+
+    checkButton.addEventListener('click', () => {
+      const userAnswer = userInput.value.trim().toLowerCase();
+      if (userAnswer === currentSong.title.toLowerCase()) {
+        result.textContent = "Você acertou!";
+        result.style.color = "green";
+        currentSong = setSong();
+        userInput.value = "";
+      } else {
+        result.textContent = "Errado! Tente novamente.";
+        result.style.color = "red";
+      }
+    });
+
+    document.getElementById('hint-btn').addEventListener('click', () => {
+      const albumCoverURL = currentSong.albumCover.split("#")[0]; // Garante que não há hash na URL
+      const albumCoverDiv = document.getElementById('customAlbumCover');
+      
+      albumCoverDiv.style.backgroundImage = `url("${albumCoverURL}")`; // Adiciona aspas na URL
+      albumCoverDiv.style.backgroundSize = "cover"; // Garante que a imagem cubra a div
+      albumCoverDiv.style.backgroundPosition = "center"; // Centraliza a imagem
+      albumCoverDiv.style.display = "block"; // Garante que a div esteja visível
+
+      document.getElementById('albumLink').innerHTML = `<strong>Álbum:</strong> ${currentSong.album}`;
+    });
+  </script>
+</body>
+</html>

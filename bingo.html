@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bingo Personalizado</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400&display=swap');
+        @font-face {
+            font-family: 'Mikela';
+            src: url('mikela.woff2') format('woff2');
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+        }
+
+        h2, h3 {
+            font-family: 'Mikela', sans-serif;
+        }
+
+        #bingo-card {
+            width: 300px;
+            height: 300px;
+            border: 2px solid #000;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: white;
+        }
+
+        #bingo-image {
+            max-width: 100%;
+            max-height: 100%;
+        }
+
+        #download-btn {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #7c3d15;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+
+        #download-btn:disabled {
+            background-color: gray;
+            cursor: not-allowed;
+        }
+
+        #timer {
+            margin-top: 10px;
+            font-size: 14px;
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <div id="bingo-card">
+        <img id="bingo-image" src="" alt="Sua cartela de Bingo">
+    </div>
+    <button id="download-btn">Baixar Cartela</button>
+    <p id="timer"></p>
+
+    <script>
+        const CARTELA_PREFIX = 'cartela_';
+        const INTERVALO_MINUTOS = 0.25;  // Tempo de espera antes de baixar nova cartela (5 minutos)
+        const TOTAL_CARTELAS = 5;
+
+        function obterIdentificadorDispositivo() {
+            let id = localStorage.getItem('device_id');
+            if (!id) {
+                id = 'device_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
+                localStorage.setItem('device_id', id);
+            }
+            return id;
+        }
+
+        function obterCartela() {
+            const dispositivoId = obterIdentificadorDispositivo();
+            let cartelaSalva = localStorage.getItem(CARTELA_PREFIX + dispositivoId);
+
+            if (cartelaSalva) {
+                return cartelaSalva; // Retorna a cartela salva para evitar mudança ao dar F5
+            }
+
+            const cartelasUsadas = JSON.parse(localStorage.getItem('cartelas_usadas')) || [];
+            let cartelasDisponiveis = Array.from({ length: TOTAL_CARTELAS }, (_, i) => `cartela${i + 1}.jpg`)
+                                        .filter(c => !cartelasUsadas.includes(c));
+
+            if (cartelasDisponiveis.length === 0) {
+                localStorage.setItem('cartelas_usadas', JSON.stringify([]));
+                cartelasDisponiveis = Array.from({ length: TOTAL_CARTELAS }, (_, i) => `cartela${i + 1}.jpg`);
+            }
+
+            const cartelaAleatoria = cartelasDisponiveis[Math.floor(Math.random() * cartelasDisponiveis.length)];
+            cartelasUsadas.push(cartelaAleatoria);
+            localStorage.setItem('cartelas_usadas', JSON.stringify(cartelasUsadas));
+            localStorage.setItem(CARTELA_PREFIX + dispositivoId, cartelaAleatoria);
+
+            return cartelaAleatoria;
+        }
+
+        function atualizarCartela() {
+            const dispositivoId = obterIdentificadorDispositivo();
+            const ultimoAcesso = localStorage.getItem('ultimo_acesso');
+            const agora = Date.now();
+
+            if (ultimoAcesso && (agora - ultimoAcesso) < INTERVALO_MINUTOS * 60 * 1000) {
+                const tempoRestante = INTERVALO_MINUTOS * 60 - Math.floor((agora - ultimoAcesso) / 1000);
+                desativarBotao(tempoRestante);
+            } else {
+                localStorage.setItem('ultimo_acesso', agora.toString());
+            }
+
+            const cartela = obterCartela();
+            const caminhoCartela = 'cartelas/' + cartela;
+            document.getElementById('bingo-image').src = caminhoCartela;
+
+            document.getElementById('download-btn').onclick = function() {
+                baixarImagem(caminhoCartela);
+                desativarBotao(INTERVALO_MINUTOS * 60);
+            };
+        }
+
+        function baixarImagem(caminho) {
+            const link = document.createElement('a');
+            link.href = caminho;
+            link.download = 'Sua_Cartela_Bingo.jpg';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function desativarBotao(tempoRestante) {
+            const botao = document.getElementById('download-btn');
+            const timer = document.getElementById('timer');
+
+            botao.disabled = true;
+            atualizarTimer(tempoRestante);
+
+            const intervalo = setInterval(() => {
+                tempoRestante -= 1;
+                if (tempoRestante <= 0) {
+                    clearInterval(intervalo);
+                    botao.disabled = false;
+                    timer.textContent = '';
+                } else {
+                    atualizarTimer(tempoRestante);
+                }
+            }, 1000);
+        }
+
+        function atualizarTimer(tempoRestante) {
+            const timer = document.getElementById('timer');
+            const minutos = Math.floor(tempoRestante / 60);
+            const segundos = tempoRestante % 60;
+            timer.textContent = `baixar a cartela em ${minutos}m ${segundos}s`;
+        }
+
+        atualizarCartela();
+    </script>
+</body>
+</html>
