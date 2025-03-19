@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stop - The Eras Tour</title>
+    <style>
+        body {
+            background-image: url('https://wallpapercave.com/wp/wp9769672.jpg'), linear-gradient(to bottom, transparent, transparent 80%, rgba(0, 0, 0, 0.8) 100%);
+            background-size: cover;
+            background-position: center;
+            text-align: center;
+            color: white;
+            font-family: Arial, sans-serif;
+            height: 100vh; 
+            display: flex;
+            justify-content: center; 
+            align-items: center; 
+            margin: 0; 
+        }
+        .container {
+            background: rgb(170, 145, 90);
+            padding: 20px;
+            border-radius: 10px;
+            display: inline-block;
+        }
+        button {
+            padding: 10px;
+            margin: 10px;
+            background: rgb(51, 33, 6);
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Stop - The Eras Tour</h1>
+        <p>Letra sorteada: <span id="letra">-</span></p>
+        <button onclick="sortearLetra()">Sortear Letra</button>
+    </div>
+    <script>
+        function sortearLetra() {
+            const letras = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            const letraSorteada = letras[Math.floor(Math.random() * letras.length)];
+            document.getElementById('letra').textContent = letraSorteada;
+        }
+    </script>
+</body>
+</html>
