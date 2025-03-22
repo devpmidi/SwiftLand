@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz - Todas as Músicas da Taylor Swift</title>
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+            text-align: center;
+            background-color: #b5b1a9; /* Cor suave, estilo "evermore" */
+            color: #3d3a3a;
+            height: 100vh;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        h1 {
+            font-family: 'Mikela', sans-serif;
+            font-size: 3em;
+            color: #6b4f32; /* Tons marrons, como o álbum */
+            margin-bottom: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            background: #f8f0e3; /* Cor clara para o fundo do conteúdo */
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.15);
+            width: 100%;
+        }
+
+        input {
+            width: 80%;
+            padding: 12px;
+            margin-top: 15px;
+            font-size: 18px;
+            border: 2px solid #6b4f32; /* Cor marrom para input */
+            border-radius: 8px;
+            background-color: #f8f0e3;
+            color: #3d3a3a;
+        }
+
+        button {
+            padding: 12px 20px;
+            font-size: 18px;
+            margin-left: 10px;
+            cursor: pointer;
+            background-color: #6b4f32; /* Cor de botão inspirada no tema */
+            color: #f8f0e3;
+            border: none;
+            border-radius: 8px;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #4f3d28;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+            margin-top: 20px;
+        }
+
+        li {
+            padding: 8px;
+            font-size: 18px;
+            color: #6b4f32;
+            border-bottom: 1px solid #d0c7b6;
+        }
+
+        #loading {
+            font-size: 18px;
+            color: #6b4f32;
+        }
+
+        #timer, #score {
+            font-weight: bold;
+            font-size: 20px;
+            color: #3d3a3a;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Quiz: Músicas da Taylor Swift</h1>
+        <p>Digite os nomes das músicas antes do tempo acabar! Lembrando que não tem from the vault!</p>
+        <p><strong>Tempo restante:</strong> <span id="timer">10:00</span></p>
+        <p><strong>Acertos:</strong> <span id="score">0</span></p>
+        <input type="text" id="songInput" placeholder="Digite uma música..." autocomplete="off" disabled>
+        <button id="submitButton" disabled>Enviar</button>
+        <ul id="correctSongs"></ul>
+        <p id="loading">Carregando músicas...</p>
+    </div>
+
+    <script>
+        const apiUrl = "https://taylor-swift-api.sarbo.workers.dev/albums";
+        let allSongs = [];
+        let correctSongs = [];
+        let timeLeft = 600; // 10 minutos
+        let timerInterval;
+
+        // Função para buscar músicas da API
+        async function fetchSongs() {
+            try {
+                const response = await fetch(apiUrl);
+                if (!response.ok) {
+                    throw new Error("Erro na resposta da API");
+                }
+
+                const albums = await response.json();
+                let songsSet = new Set();
+
+                for (const album of albums) {
+                    const albumResponse = await fetch(`https://taylor-swift-api.sarbo.workers.dev/albums/${album.album_id}`);
+                    if (!albumResponse.ok) {
+                        throw new Error("Erro ao buscar álbum");
+                    }
+
+                    const songsData = await albumResponse.json();
+                    songsData.forEach(song => songsSet.add(normalizeString(song.title)));
+                }
+
+                allSongs = [...songsSet];
+                console.log("Músicas carregadas:", allSongs);  // Verifique se as músicas estão corretas
+                document.getElementById("loading").style.display = "none";
+                document.getElementById("songInput").disabled = false;
+                document.getElementById("submitButton").disabled = false;
+
+                startTimer(); // Só inicia o timer quando as músicas carregam
+            } catch (error) {
+                console.error("Erro ao buscar músicas:", error);
+                document.getElementById("loading").innerText = `Erro ao carregar músicas! ${error.message}`;
+            }
+        }
+
+        // Função para normalizar strings (remove acentos, transforma em minúsculas)
+        function normalizeString(str) {
+            return str
+                .normalize("NFD")
+                .replace(/[\u0300-\u036f]/g, "")
+                .toLowerCase()
+                .trim();
+        }
+
+        // Função para verificar resposta do usuário com correspondência aproximada
+        function checkSong() {
+            const input = document.getElementById("songInput");
+            const songName = normalizeString(input.value);
+
+            if (songName === "") return; // Impede envio de resposta vazia
+
+            console.log("Música digitada:", songName);  // Verifique o que o usuário digitou
+
+            // Verifica se a resposta do usuário é parecida com algum título
+            const matchedSong = allSongs.find(song => song.includes(songName));
+
+            if (matchedSong && !correctSongs.includes(matchedSong)) {
+                correctSongs.push(matchedSong);
+                document.getElementById("score").innerText = correctSongs.length;
+
+                // Adicionar a música correta na lista
+                const li = document.createElement("li");
+                li.innerText = input.value;
+                document.getElementById("correctSongs").appendChild(li);
+
+                input.value = ""; // Limpar o campo de entrada
+            } else {
+                console.log("Música não encontrada ou já foi acertada");
+            }
+        }
+
+        // Função para iniciar o cronômetro
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    alert(`⏳ Tempo esgotado! Você acertou ${correctSongs.length} músicas.`);
+                    return;
+                }
+
+                timeLeft--;
+                const minutes = Math.floor(timeLeft / 60);
+                const seconds = timeLeft % 60;
+                document.getElementById("timer").innerText = `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
+            }, 1000);
+        }
+
+        // Adicionar eventos
+        window.onload = async () => {
+            await fetchSongs(); // Só inicia o timer depois que as músicas forem carregadas
+
+            document.getElementById("songInput").addEventListener("keypress", (event) => {
+                if (event.key === "Enter") {
+                    checkSong();
+                }
+            });
+
+            document.getElementById("submitButton").addEventListener("click", checkSong);
+        };
+    </script>
+</body>
+</html>
