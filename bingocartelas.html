@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerador de Imagens</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat&display=swap" rel="stylesheet">
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: #8b6e4c; 
+            font-family: 'Montserrat', sans-serif;
+            color: white;
+            text-align: center;
+        }
+        img {
+            max-width: 80%;
+            height: auto;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            border: none;
+            background-color: #8b5a2b;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+            font-family: 'Montserrat', sans-serif;
+        }
+        button:hover {
+            background-color: #704214;
+        }
+    </style>
+</head>
+<body>
+    <h1>SwiftLand - Bingo</h1>
+    <img id="imageDisplay" src="" alt="Imagem Aleatória">
+    <button onclick="generateImage()">Gerar Imagem</button>
+
+    <script>
+        const imageFolder = "fotos/";
+        const imageList = [
+            "1.jpg", "2.jpg", "3.png", "4.jpg", "5.jpg", "6.jpg", "7.jpg", "8.jpg", "9.jpeg", "10.jpg",
+            "11.jpg", "12.jpg", "13.jpg", "14.jpg", "15.jpg", "16.jpg", "17.jpg", "18.jpg", "19.jpg", "20.jpg",
+            "21.jpg", "22.jpg", "23.jpg", "24.jpg", "25.jpg", "26.jpg", "27.jpg", "28.jpg", "29.jpg", "30.jpg",
+            "31.jpg", "32.jpg"
+        ]; 
+
+        let shuffledImages = [];
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        function generateImage() {
+            if (shuffledImages.length === 0) {
+                shuffledImages = [...imageList];
+                shuffleArray(shuffledImages);
+            }
+            const nextImage = shuffledImages.pop();
+            document.getElementById("imageDisplay").src = imageFolder + nextImage;
+        }
+    </script>
+</body>
+</html>
