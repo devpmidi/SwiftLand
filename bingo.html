@@ -42,7 +42,7 @@
             max-height: 100%;
         }
 
-        #download-btn {
+        #download-btn, #go-to-bingo {
             padding: 10px 20px;
             font-size: 16px;
             cursor: pointer;
@@ -50,6 +50,7 @@
             color: white;
             border: none;
             border-radius: 5px;
+            margin-top: 10px;
         }
 
         #download-btn:disabled {
@@ -69,6 +70,9 @@
         <img id="bingo-image" src="" alt="Sua cartela de Bingo">
     </div>
     <button id="download-btn">Baixar Cartela</button>
+    <a href="bingocartelas.html">
+        <button id="go-to-bingo">Ir para Cartelas</button>
+    </a>
     <p id="timer"></p>
 
     <script>
