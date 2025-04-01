@@ -21,12 +21,14 @@
             height: 100vh;
             margin: 0;
             color: black;
-            transition: background-color 0.3s;
+            transition: background-color 0.3s, color 0.3s;
         }
         .text-display {
             font-size: 5rem;
             font-weight: bold;
             transition: transform 0.2s;
+            text-align: justify;
+            max-width: 80%;
         }
         .input-container {
             margin-top: 20px;
@@ -63,7 +65,7 @@
             font-size: 1rem;
             color: black;
         }
-        .font-button {
+        .font-button, .download-button {
             margin-top: 20px;
             padding: 10px 20px;
             border: none;
@@ -87,6 +89,7 @@
         <div class="color-button" style="background-color: blue;" onclick="changeBackground('blue')"></div>
     </div>
     <button class="font-button" onclick="toggleFont()">Texto: Arial Narrow</button>
+    <button class="download-button" onclick="downloadText()">Baixar Texto</button>
     <div class="footer">Take A Screenshot To Save!<br>© 2025 SWIFTLAND</div>
 
     <script>
@@ -98,6 +101,8 @@
         
         function changeBackground(color) {
             document.body.style.backgroundColor = color;
+            const textColor = (color === '#000000' || color === '#00ff00' || color === 'blue') ? 'white' : 'black';
+            document.body.style.color = textColor;
         }
         
         function toggleFont() {
@@ -107,6 +112,17 @@
             } else {
                 display.style.fontFamily = 'Arial Narrow, sans-serif';
             }
+        }
+
+        function downloadText() {
+            const text = document.getElementById("displayText").textContent;
+            const blob = new Blob([text], { type: "text/plain" });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = "texto.txt";
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         }
     </script>
 </body>
