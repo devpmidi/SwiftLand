@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+    <title>SwiftLand Generator</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Anton&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Arial+Narrow&display=swap');
+
+        body {
+            background-color: #00ff00;
+            font-family: 'Anton', sans-serif;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            color: black;
+            transition: background-color 0.3s;
+        }
+        .text-display {
+            font-size: 5rem;
+            font-weight: bold;
+            transition: transform 0.2s;
+        }
+        .input-container {
+            margin-top: 20px;
+        }
+        input {
+            font-size: 1.5rem;
+            padding: 10px;
+            border-radius: 10px;
+            border: none;
+            text-align: center;
+            outline: none;
+            width: 80%;
+            max-width: 400px;
+            font-family: 'Anton', sans-serif;
+        }
+        .color-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .color-button {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 2px solid black;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .color-button:hover {
+            transform: scale(1.1);
+        }
+        .footer {
+            margin-top: 20px;
+            font-size: 1rem;
+            color: black;
+        }
+        .font-button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            background-color: black;
+            color: white;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="text-display" id="displayText">BRAT</div>
+    <div class="input-container">
+        <input type="text" id="textInput" placeholder="Digite seu texto aqui" oninput="updateText()">
+    </div>
+    <div class="color-buttons">
+        <div class="color-button" style="background-color: black;" onclick="changeBackground('#000000')"></div>
+        <div class="color-button" style="background-color: white;" onclick="changeBackground('#FFFFFF')"></div>
+        <div class="color-button" style="background-color: #00ff00;" onclick="changeBackground('#00ff00')"></div>
+        <div class="color-button" style="background-color: blue;" onclick="changeBackground('blue')"></div>
+    </div>
+    <button class="font-button" onclick="toggleFont()">Texto: Arial Narrow</button>
+    <div class="footer">Take A Screenshot To Save!<br>© 2025 Charli XCX</div>
+
+    <script>
+        function updateText() {
+            const input = document.getElementById("textInput").value;
+            const display = document.getElementById("displayText");
+            display.textContent = input || "BRAT";
+        }
+        
+        function changeBackground(color) {
+            document.body.style.backgroundColor = color;
+        }
+        
+        function toggleFont() {
+            const display = document.getElementById("displayText");
+            if (display.style.fontFamily === 'Arial Narrow, sans-serif') {
+                display.style.fontFamily = 'Anton, sans-serif';
+            } else {
+                display.style.fontFamily = 'Arial Narrow, sans-serif';
+            }
+        }
+    </script>
+</body>
+</html>
